@@ -24,7 +24,7 @@ func TestNewClient_Nil(t *testing.T) {
 	}
 }
 
-func TestgenerateKey(t *testing.T) {
+func TestGenerateKey(t *testing.T) {
 	bc := Config{
 		Hostname: "host",
 		Etcd: EtcdConfig{
