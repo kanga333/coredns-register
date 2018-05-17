@@ -1,0 +1,14 @@
+hostname: host
+address: 127.0.0.1
+interval: 60
+etcd:
+  discovery-srv: dns.domain.test
+  endpoints:
+    - http://127.0.0.1:2379
+  basepath: /base
+record_files:
+  - "fixtures/record.d/*yml"
+records:
+  srv:
+    - domain: a.domain.test
+      port: 80
