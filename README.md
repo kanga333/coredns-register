@@ -1,1 +1,39 @@
 # coredns-register
+
+Coredns-register is an agent that registers records in CoreDNS with etcd as the backend.
+Provides dynamic service registration when using CoreDNS for DNS discovery of prometheus.
+
+## How to use
+
+```shell
+coredns-register -config /etc/coredns-register/config.yml
+```
+
+## Settings
+
+yaml example as below.
+
+```yaml:/etc/coredns-register/config.yml
+hostname: host # The hostname of the FQDN.
+address: 127.0.0.1 # IP address resolved by DNS.
+interval: 60 # Registration interval.
+etcd:
+  discovery-srv: dns.domain.test # SRV indicating the destination of etcd used by CoreDNS.
+  endpoints: # Directly specify the destination of etcd used by CoreDNS. discovery-srv takes precedence.
+    - http://127.0.0.1:2379
+  basepath: /skydns # Base path of etcd registration.
+record_files:
+  - "/etc/coredns-register/record.d/*yml" # Path of srv record configuration file.
+records:
+  srv:
+    - domain: a.domain.test # The domain of the FQDN.
+      address: 127.0.0.1 # Override setting root adress. Option.
+      port: 80 # Port of SRV record.
+```
+
+```yaml:/etc/coredns-register/record.d/b.yml
+srv:
+  - domain: b.domain.test # The domain of the FQDN.
+    address: 127.0.0.1 # Override setting root adress. Option.
+    port: 80 # Port of SRV record.
+```
