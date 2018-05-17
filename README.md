@@ -9,6 +9,20 @@ Provides dynamic service registration when using CoreDNS for DNS discovery of pr
 coredns-register -config /etc/coredns-register/config.yml
 ```
 
+### Using Docker
+
+```shell
+docker run -d \
+  --env HOSTNAME=agent-host \
+  --env ADDRESS=127.0.0.1 \
+  --env DISCOVERY_SRV=srv.coredns.test \
+  --env SRV_DOMAIN=node.coredns.test \
+  --env SRV_PORT=9100 \
+  kanga333/coredns-register
+```
+
+Refer to config.yml for configurable environment variables.
+
 ## Settings
 
 yaml example as below.
