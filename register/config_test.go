@@ -84,7 +84,7 @@ func TestLoadRecords(t *testing.T) {
 		RecordFiles: []string{"fixtures/record.d/*yml"},
 		Records:     recordsA,
 	}
-	got, err := conf.LoadRecords()
+	got, err := conf.loadRecords()
 	if err != nil {
 		t.Fatalf("LoadRecords return error: %v", err)
 	}
@@ -92,7 +92,50 @@ func TestLoadRecords(t *testing.T) {
 		t.Errorf("LoadRecords got: %v, want: %v", got, want)
 	}
 	if got, want := conf.Records, recordsA; !reflect.DeepEqual(got, want) {
-		t.Errorf("Records after LoadRecords want: %v, got: %v", got, want)
+		t.Errorf("Records after LoadRecords got: %v, want: %v", got, want)
 	}
 
+}
+
+func TestCreateScheduker(t *testing.T) {
+	records := Records{
+		SRV: []SRVRecord{
+			SRVRecord{
+				Domain:  "a.domain.test",
+				Address: "127.0.0.1",
+				Port:    80,
+			},
+		},
+	}
+	etcd := EtcdConfig{
+		DiscoverySRV: "dns.domain.test",
+		Basepath:     "/base",
+		Endpoints:    []string{"http://127.0.0.1:2379"},
+	}
+	c := &Config{
+		Hostname: "host",
+		Address:  "127.0.0.1",
+		Interval: 60,
+		Etcd:     etcd,
+		Records:  records,
+	}
+
+	want := &Scheduler{
+		interval: 60,
+		register: &EtcdRegister{
+			hostname: "host",
+			etcd:     etcd,
+		},
+		records: &records,
+		logger:  nil,
+	}
+
+	got, err := c.CreateScheduler(nil)
+	if err != nil {
+		t.Fatalf("CreateScheduler return error: %v", err)
+	}
+
+	if !reflect.DeepEqual(got, want) {
+		t.Errorf("CreateScheduler got: %v, want: %v", got, want)
+	}
 }

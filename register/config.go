@@ -10,6 +10,7 @@ import (
 	yaml "gopkg.in/yaml.v2"
 )
 
+// Config represents setting of coredns-register.
 type Config struct {
 	Hostname    string     `yaml:"hostname"`
 	Address     string     `yaml:"address"`
@@ -19,26 +20,23 @@ type Config struct {
 	Records     Records    `yaml:"records,omitempty"`
 }
 
-func (c *Config) LoadRecords() (*Records, error) {
-	recordFiles := []string{}
-	for _, path := range c.RecordFiles {
-		files, err := filepath.Glob(path)
-		if err != nil {
-			return nil, err
-		}
-		recordFiles = append(recordFiles, files...)
-	}
-	records, err := loadRecords(recordFiles)
+// LoadFile reads yaml in filename and unmarshal it to v.
+func LoadFile(filename string, v interface{}) error {
+	content, err := ioutil.ReadFile(filename)
 	if err != nil {
-		return nil, err
+		return err
 	}
-	records.Add(&c.Records)
-	records.InitAddress(c.Address)
-	return records, nil
+	err = yaml.UnmarshalStrict(content, v)
+	if err != nil {
+		return fmt.Errorf("parsing YAML file %s: %v", filename, err)
+	}
+
+	return nil
 }
 
+// CreateScheduler creates a scheduler based on the contents of config.
 func (c *Config) CreateScheduler(lg *zap.Logger) (*Scheduler, error) {
-	records, err := c.LoadRecords()
+	records, err := c.loadRecords()
 	if err != nil {
 		return nil, err
 	}
@@ -56,22 +54,18 @@ func (c *Config) CreateScheduler(lg *zap.Logger) (*Scheduler, error) {
 	return s, nil
 }
 
-func LoadFile(filename string, v interface{}) error {
-	content, err := ioutil.ReadFile(filename)
-	if err != nil {
-		return err
-	}
-	err = yaml.UnmarshalStrict(content, v)
-	if err != nil {
-		return fmt.Errorf("parsing YAML file %s: %v", filename, err)
+func (c *Config) loadRecords() (*Records, error) {
+	recordFiles := []string{}
+	for _, path := range c.RecordFiles {
+		files, err := filepath.Glob(path)
+		if err != nil {
+			return nil, err
+		}
+		recordFiles = append(recordFiles, files...)
 	}
 
-	return nil
-}
-
-func loadRecords(files []string) (*Records, error) {
 	records := &Records{}
-	for _, file := range files {
+	for _, file := range recordFiles {
 		tmp := &Records{}
 		err := LoadFile(file, tmp)
 		if err != nil {
@@ -79,5 +73,8 @@ func loadRecords(files []string) (*Records, error) {
 		}
 		records.Add(tmp)
 	}
+
+	records.Add(&c.Records)
+	records.InitAddress(c.Address)
 	return records, nil
 }

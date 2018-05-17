@@ -10,18 +10,20 @@ import (
 	etcd "github.com/coreos/etcd/client"
 )
 
+// Register registers DNS record.
 type Register interface {
 	SRVRegister(record SRVRecord) error
 	SRVUnregister(record SRVRecord) error
 }
 
+// EtcdConfig represents connection setting with etcd v2.
 type EtcdConfig struct {
 	DiscoverySRV string   `yaml:"discovery-srv,omitempty"`
 	Endpoints    []string `yaml:"endpoints,omitempty"`
 	Basepath     string   `yaml:"basepath"`
 }
 
-func (c *EtcdConfig) NewClient() (etcd.KeysAPI, error) {
+func (c *EtcdConfig) newClient() (etcd.KeysAPI, error) {
 	var endpoints []string
 	endpoints = c.Endpoints
 
@@ -51,17 +53,19 @@ func (c *EtcdConfig) NewClient() (etcd.KeysAPI, error) {
 	return etcd.NewKeysAPI(client), nil
 }
 
+// EtcdRegister manages DNS registration to the etcd backend of CoreDNS.
 type EtcdRegister struct {
 	hostname string
 	etcd     EtcdConfig
 }
 
+// SRVRegister registers SRV record.
 func (r *EtcdRegister) SRVRegister(record SRVRecord) error {
-	client, err := r.etcd.NewClient()
+	client, err := r.etcd.newClient()
 	if err != nil {
 		return err
 	}
-	key := r.GenerateKey(record.Domain)
+	key := r.generateKey(record.Domain)
 	value := generateSRVValue(record)
 	_, err = client.Set(context.Background(), key, value, nil)
 	if err != nil {
@@ -70,12 +74,13 @@ func (r *EtcdRegister) SRVRegister(record SRVRecord) error {
 	return nil
 }
 
+// SRVUnregister unregisters SRV record.
 func (r *EtcdRegister) SRVUnregister(record SRVRecord) error {
-	client, err := r.etcd.NewClient()
+	client, err := r.etcd.newClient()
 	if err != nil {
 		return err
 	}
-	key := r.GenerateKey(record.Domain)
+	key := r.generateKey(record.Domain)
 	_, err = client.Delete(context.Background(), key, nil)
 	if err != nil {
 		return err
@@ -83,7 +88,7 @@ func (r *EtcdRegister) SRVUnregister(record SRVRecord) error {
 	return nil
 }
 
-func (r *EtcdRegister) GenerateKey(domain string) string {
+func (r *EtcdRegister) generateKey(domain string) string {
 	domains := strings.Split(domain, ".")
 	reverse(domains)
 

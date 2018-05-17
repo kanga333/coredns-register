@@ -7,6 +7,7 @@ import (
 	"go.uber.org/zap"
 )
 
+// Scheduler manages periodic DNS record registration.
 type Scheduler struct {
 	interval int
 	register Register
@@ -14,6 +15,7 @@ type Scheduler struct {
 	logger   *zap.Logger
 }
 
+// Start starts periodic execution of DNS registration.
 func (s *Scheduler) Start(signal chan os.Signal) {
 	t := time.NewTicker(time.Duration(s.interval) * time.Second)
 	defer t.Stop()

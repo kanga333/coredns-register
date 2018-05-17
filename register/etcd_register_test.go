@@ -10,7 +10,7 @@ func TestNewClientEndpoints(t *testing.T) {
 	ec := EtcdConfig{
 		Endpoints: []string{"http://127.0.0.1:2379"},
 	}
-	_, err := ec.NewClient()
+	_, err := ec.newClient()
 	if err != nil {
 		t.Fatalf("NewClient return error: %v", err)
 	}
@@ -18,13 +18,13 @@ func TestNewClientEndpoints(t *testing.T) {
 
 func TestNewClient_Nil(t *testing.T) {
 	ec := EtcdConfig{}
-	_, err := ec.NewClient()
+	_, err := ec.newClient()
 	if err == nil || err.Error() != "Endpoint is not set" {
 		t.Errorf("Empty EtcdConfig does not return error")
 	}
 }
 
-func TestGenerateKey(t *testing.T) {
+func TestgenerateKey(t *testing.T) {
 	bc := Config{
 		Hostname: "host",
 		Etcd: EtcdConfig{
@@ -35,8 +35,8 @@ func TestGenerateKey(t *testing.T) {
 		hostname: bc.Hostname,
 		etcd:     bc.Etcd,
 	}
-	if got, want := er.GenerateKey("domain.test"), "/base/test/domain/host"; got != want {
-		t.Errorf("GenerateKey returns: %v, want: %v", got, want)
+	if got, want := er.generateKey("domain.test"), "/base/test/domain/host"; got != want {
+		t.Errorf("generateKey returns: %v, want: %v", got, want)
 
 	}
 }
@@ -115,7 +115,7 @@ func Test_generateSRVValue(t *testing.T) {
 	}
 
 	if got, want := generateSRVValue(r), `{"host":"127.0.0.1","port":80}`; got != want {
-		t.Errorf("GenerateKey returns: %v, want: %v", got, want)
+		t.Errorf("generateKey returns: %v, want: %v", got, want)
 
 	}
 }
