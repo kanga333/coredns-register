@@ -3,6 +3,7 @@ package register
 import (
 	"fmt"
 	"io/ioutil"
+	"os"
 	"path/filepath"
 
 	"go.uber.org/zap"
@@ -26,7 +27,8 @@ func LoadFile(filename string, v interface{}) error {
 	if err != nil {
 		return err
 	}
-	err = yaml.UnmarshalStrict(content, v)
+	expandContent := []byte(os.ExpandEnv(string(content)))
+	err = yaml.UnmarshalStrict(expandContent, v)
 	if err != nil {
 		return fmt.Errorf("parsing YAML file %s: %v", filename, err)
 	}
