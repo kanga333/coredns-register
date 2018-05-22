@@ -42,12 +42,12 @@ records:
   srv:
     - domain: a.domain.test # The domain of the FQDN.
       address: 127.0.0.1 # Override setting root adress. Option.
-      port: 80 # Port of SRV record.
+      port: 80 # Port of SRV record.
 ```
 
 ```yaml:/etc/coredns-register/record.d/b.yml
 srv:
   - domain: b.domain.test # The domain of the FQDN.
     address: 127.0.0.1 # Override setting root adress. Option.
-    port: 80 # Port of SRV record.
+    port: 80 # Port of SRV record.
 ```
