@@ -139,3 +139,49 @@ func TestCreateScheduker(t *testing.T) {
 		t.Errorf("CreateScheduler got: %v, want: %v", got, want)
 	}
 }
+
+func TestParseSRV(t *testing.T) {
+	records := Records{
+		SRV: []SRVRecord{
+			SRVRecord{
+				Domain:  "a.domain.test",
+				Address: "127.0.0.1",
+				Port:    80,
+			},
+		},
+	}
+	c := &Config{
+		Address:    "127.0.0.1",
+		SRVRecords: "b.domain.test:81,c.domain.test:82",
+		Records:    records,
+	}
+
+	want := Records{
+		SRV: []SRVRecord{
+			SRVRecord{
+				Domain:  "a.domain.test",
+				Address: "127.0.0.1",
+				Port:    80,
+			},
+			SRVRecord{
+				Domain:  "b.domain.test",
+				Address: "127.0.0.1",
+				Port:    81,
+			},
+			SRVRecord{
+				Domain:  "c.domain.test",
+				Address: "127.0.0.1",
+				Port:    82,
+			},
+		},
+	}
+
+	err := c.parseSRVRecords()
+	if err != nil {
+		t.Fatalf("parseSRVRecords return error: %v", err)
+	}
+
+	if !reflect.DeepEqual(c.Records, want) {
+		t.Errorf("CreateScheduler got: %v, want: %v", c.Records, want)
+	}
+}

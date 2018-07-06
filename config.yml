@@ -4,7 +4,4 @@ interval: ${INTERVAL}
 etcd:
   discovery-srv: ${DISCOVERY_SRV}
   basepath: ${BASEPATH}
-records:
-  srv:
-    - domain: ${SRV_DOMAIN}
-      port: ${SRV_PORT}
+srv_records: ${SRV_RECORDS}
