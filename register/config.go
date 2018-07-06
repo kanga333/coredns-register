@@ -5,6 +5,8 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
+	"strconv"
+	"strings"
 
 	"go.uber.org/zap"
 
@@ -19,6 +21,7 @@ type Config struct {
 	Etcd        EtcdConfig `yaml:"etcd"`
 	RecordFiles []string   `yaml:"record_files,omitempty"`
 	Records     Records    `yaml:"records,omitempty"`
+	SRVRecords  string     `yaml:"srv_records,omitempty"`
 }
 
 // LoadFile reads yaml in filename and unmarshal it to v.
@@ -57,6 +60,7 @@ func (c *Config) CreateScheduler(lg *zap.Logger) (*Scheduler, error) {
 }
 
 func (c *Config) loadRecords() (*Records, error) {
+	c.parseSRVRecords()
 	recordFiles := []string{}
 	for _, path := range c.RecordFiles {
 		files, err := filepath.Glob(path)
@@ -79,4 +83,21 @@ func (c *Config) loadRecords() (*Records, error) {
 	records.Add(&c.Records)
 	records.InitAddress(c.Address)
 	return records, nil
+}
+
+func (c *Config) parseSRVRecords() error {
+	srvs := strings.Split(c.SRVRecords, ",")
+	for _, srv := range srvs {
+		s := strings.Split(srv, ":")
+		if len(s) != 2 {
+			return fmt.Errorf("srv_records pasrse error srv: %s", srv)
+		}
+		domain := s[0]
+		port, err := strconv.Atoi(s[1])
+		if err != nil {
+			return err
+		}
+		c.Records.AddSRV(domain, c.Address, port)
+	}
+	return nil
 }

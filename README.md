@@ -16,8 +16,7 @@ docker run -d \
   --env HOSTNAME=agent-host \
   --env ADDRESS=127.0.0.1 \
   --env DISCOVERY_SRV=srv.coredns.test \
-  --env SRV_DOMAIN=node.coredns.test \
-  --env SRV_PORT=9100 \
+  --env SRV_RECORDS="node.coredns.test:9100,etcd.coredns.test:2379"
   kanga333/coredns-register
 ```
 
@@ -43,6 +42,7 @@ records:
     - domain: a.domain.test # The domain of the FQDN.
       address: 127.0.0.1 # Override setting root adress. Option.
       port: 80 # Port of SRV record.
+srv_records: "c.domain.test:80,d.domain.test:80" # Comma separated list of "domain:port" of srv record. Option.
 ```
 
 ```yaml:/etc/coredns-register/record.d/b.yml

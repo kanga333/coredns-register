@@ -12,6 +12,16 @@ func (r *Records) Add(a *Records) {
 	}
 }
 
+// AddSRV adds SRVRecord to Records.
+func (r *Records) AddSRV(domain, address string, port int) {
+	srv := SRVRecord{
+		Domain:  domain,
+		Address: address,
+		Port:    port,
+	}
+	r.SRV = append(r.SRV, srv)
+}
+
 // InitAddress sets an initial value for a DNS record whose address is empty.
 func (r *Records) InitAddress(a string) {
 	for i := range r.SRV {
