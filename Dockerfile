@@ -1,8 +1,7 @@
 # go build image
 FROM golang:alpine as build
-RUN apk update
-RUN apk add git
-RUN go get github.com/kanga333/coredns-register
+RUN mkdir -p /go/src/github.com/kanga333/coredns-register
+COPY . /go/src/github.com/kanga333/coredns-register
 WORKDIR /go/src/github.com/kanga333/coredns-register
 RUN go build .
 
